@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calculadora de Valor Neto de Realización</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        .input-row {
+            margin-bottom: 10px;
+        }
+
+        .input-row label {
+            display: inline-block;
+            width: 200px;
+        }
+
+        .input-row input,
+        .input-row select {
+            width: 200px;
+        }
+
+        #calculate-button,
+        #show-table-button {
+            margin-left: 200px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th,
+        table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+        }
+
+        table th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+
+        table td {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Calculadora de Valor Neto de Realización</h1>
+    <form id="calculator-form">
+        <div class="input-row">
+            <label for="vnr-select">VNR:</label>
+            <select id="vnr-select">
+                <option value="productos-terminados">Productos Terminados</option>
+                <option value="productos-proceso">Productos en Proceso</option>
+                <option value="materia-prima">Materia Prima</option>
+                <option value="mercaderia">Mercadería</option>
+            </select>
+        </div>
+        <div class="input-row">
+            <label for="producto-input">Producto:</label>
+            <input type="text" id="producto-input" />
+        </div>
+        <div class="input-row">
+            <label for="cantidad-input">Cantidad:</label>
+            <input type="number" id="cantidad-input" />
+        </div>
+        <div class="input-row">
+            <label for="costo-unitario-input">Costo Unitario:</label>
+            <input type="number" id="costo-unitario-input" />
+        </div>
+        <div class="input-row">
+            <label for="total-costo-historico-input">Total Costo Histórico:</label>
+            <input type="text" id="total-costo-historico-input" readonly />
+        </div>
+        <div class="input-row">
+            <label for="precio-estimado-venta-input">Precio Estimado de Venta:</label>
+            <input type="number" id="precio-estimado-venta-input" />
+        </div>
+        <div class="input-row">
+            <label for="costo-terminar-produccion-input">Costo para Terminar su Producción:</label>
+            <input type="number" id="costo-terminar-produccion-input" />
+        </div>
+        <div class="input-row">
+            <label for="costo-llevar-cabo-venta-input">Costo para llevar a cabo la Venta:</label>
+            <input type="number" id="costo-llevar-cabo-venta-input" />
+        </div>
+        <div class="input-row">
+            <label for="valor-neto-realizable-unitario-input">Valor Neto Realizable Unitario:</label>
+            <input type="text" id="valor-neto-realizable-unitario-input" readonly />
+        </div>
+        <div class="input-row">
+            <label for="valor-neto-realizable-total-input">Valor Neto Realizable Total:</label>
+            <input type="text" id="valor-neto-realizable-total-input" readonly />
+        </div>
+        <div class="input-row">
+            <label for="resultado-input">Resultado:</label>
+            <input type="text" id="resultado-input" readonly />
+        </div>
+        <div class="input-row">
+            <label for="diferencia-unitaria-input">Diferencia Unitaria:</label>
+            <input type="text" id="diferencia-unitaria-input" readonly />
+        </div>
+        <div class="input-row">
+            <label for="diferencia-total-input">Diferencia Total:</label>
+            <input type="text" id="diferencia-total-input" readonly />
+        </div>
+        <button type="button" id="calculate-button">Calcular</button>
+        <button type="button" id="show-table-button">Visualizar Tabla</button>
+    </form>
+
+    <table id="result-table">
+        <!-- Aquí se generará la tabla con los datos ingresados -->
+    </table>
+
+    <script>
+        // Obtener referencias a los elementos del formulario
+        const form = document.getElementById('calculator-form');
+        const totalCostoHistoricoInput = document.getElementById('total-costo-historico-input');
+        const valorNetoRealizableUnitarioInput = document.getElementById('valor-neto-realizable-unitario-input');
+        const valorNetoRealizableTotalInput = document.getElementById('valor-neto-realizable-total-input');
+        const resultadoInput = document.getElementById('resultado-input');
+        const diferenciaUnitariaInput = document.getElementById('diferencia-unitaria-input');
+        const diferenciaTotalInput = document.getElementById('diferencia-total-input');
+
+        // Agregar evento al botón de calcular
+        document.getElementById('calculate-button').addEventListener('click', calculate);
+
+        function calculate() {
+            const cantidad = parseFloat(document.getElementById('cantidad-input').value);
+            const costoUnitario = parseFloat(document.getElementById('costo-unitario-input').value);
+            const precioEstimadoVenta = parseFloat(document.getElementById('precio-estimado-venta-input').value);
+            const costoTerminarProduccion = parseFloat(document.getElementById('costo-terminar-produccion-input').value);
+            const costoLlevarCaboVenta = parseFloat(document.getElementById('costo-llevar-cabo-venta-input').value);
+
+            const totalCostoHistorico = cantidad * costoUnitario;
+            totalCostoHistoricoInput.value = totalCostoHistorico.toFixed(2);
+
+            const valorNetoRealizableUnitario = precioEstimadoVenta - costoTerminarProduccion - costoLlevarCaboVenta;
+            valorNetoRealizableUnitarioInput.value = valorNetoRealizableUnitario.toFixed(2);
+
+            const valorNetoRealizableTotal = valorNetoRealizableUnitario * cantidad;
+            valorNetoRealizableTotalInput.value = valorNetoRealizableTotal.toFixed(2);
+
+            const resultado = valorNetoRealizableUnitario > costoUnitario ? 'Positivo' : 'Negativo';
+            resultadoInput.value = resultado;
+
+            const diferenciaUnitaria = valorNetoRealizableUnitario - costoUnitario;
+            diferenciaUnitariaInput.value = diferenciaUnitaria.toFixed(2);
+
+            const diferenciaTotal = (valorNetoRealizableUnitario - costoUnitario) * cantidad;
+            diferenciaTotalInput.value = diferenciaTotal.toFixed(2);
+        }
+
+        // Agregar evento al botón de visualizar tabla
+        document.getElementById('show-table-button').addEventListener('click', showTable);
+
+        function showTable() {
+            const table = document.getElementById('result-table');
+            table.innerHTML = '';
+
+            const headers = ['VNR', 'PRODUCTO', 'CANTIDAD', 'COSTO UNITARIO', 'TOTAL COSTO HISTORICO', 'PRECIO ESTIMADO DE VENTA', 'COSTO PARA TERMINAR SU PRODUCCION', 'COSTO PARA LLEVAR A CABO LA VENTA', 'VALOR NETO REALIZABLE UNITARIO', 'VALOR NETO REALIZABLE TOTAL', 'RESULTADO', 'DIFERENCIA UNITARIA', 'DIFERENCIA TOTAL'];
+            const row = table.insertRow();
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                row.appendChild(th);
+            });
+
+            const values = [
+                document.getElementById('vnr-select').value,
+                document.getElementById('producto-input').value,
+                document.getElementById('cantidad-input').value,
+                document.getElementById('costo-unitario-input').value,
+                totalCostoHistoricoInput.value,
+                document.getElementById('precio-estimado-venta-input').value,
+                document.getElementById('costo-terminar-produccion-input').value,
+                document.getElementById('costo-llevar-cabo-venta-input').value,
+                valorNetoRealizableUnitarioInput.value,
+                valorNetoRealizableTotalInput.value,
+                resultadoInput.value,
+                diferenciaUnitariaInput.value,
+                diferenciaTotalInput.value
+            ];
+
+            const dataRow = table.insertRow();
+            values.forEach(value => {
+                const td = document.createElement('td');
+                td.textContent = value;
+                dataRow.appendChild(td);
+            });
+        }
+    </script>
+</body>
+</html>
